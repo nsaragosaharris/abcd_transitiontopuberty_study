@@ -1,0 +1,15 @@
+Order in which scripts should be run.
+
+Merging, defining, and calculating data.
+1. merge_text_files.
+2. rename_alias_variables.
+3. calculate_BISBAS_Reward.
+4. calculate_MRI_averages.
+5. calculate_PDS_adaptedfromHerting.
+
+Split half analysis: Dividing the data into Sample 1 and Sample 2.
+6. split_data.
+
+Analyses.
+7. Supplement_A (should call define_dataframes).
+8. Supplement_B (should call define_dataframes).
