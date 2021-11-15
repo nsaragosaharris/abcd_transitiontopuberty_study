@@ -1,0 +1,124 @@
+---
+title: "Core Demographics"
+author: "Elizabeth McNeilly"
+date: "12/8/2019"
+output: html_document
+---
+
+#NOTE: 
+- This script was originally written for the 2019 ABCD Workshop (data release 2.0) and has been edited for the recent 3.0 release. 
+#SETUP
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(here)
+
+#Set your directory with merged data set (nda20) here.
+
+data_dir = ((dirname(here()))) 
+data_folder <- file.path(data_dir,"ABCD","derivatives")
+output_directory <- data_folder
+
+```
+
+```{r}
+## Definition of convenience variables
+
+# The following sections extend the nda20 data frame (see [creating a single data spreadsheet](https://github.com/ABCD-STUDY/analysis-nda17#create-a-single-data-spreadsheet) and [create categorical variables](https://github.com/ABCD-STUDY/analysis-nda/blob/master/notebooks/general/categorical_extension.md)) by some core demographic columns.
+#  - subjectid
+#  - age in years
+#  - sex
+#  - female
+#  - race.ethnicity
+#  - abcd_site
+
+# Most of these are simple re-definitions of existing columns with simpler names, other columns are re-scored versions of nda17 columns.
+```
+
+
+```{r}
+# Start by reading in the merged data from disk.
+
+nda20 = readRDS(paste(output_directory,"nda20.rds",sep="/"))
+
+# The site name is anonymized and stored per event in case participants move from one site to another during the study.
+nda20$abcd_site = nda20$site_id_l
+
+### Subjectid
+nda20$subjectid = nda20$src_subject_id
+
+### Age (in month)
+# Get a better name for interview_age.
+nda20$age = nda20$interview_age
+
+```
+
+
+```{r}
+### A simplified race.ethnicity value
+
+# ABCD is using a simplified 5 category race/ethnicity scale for reporting purposes and for comparison of the ABCD cohort to data from the American Community Census. The following code will add a new 'race_ethnicity' column to the NDA-20 data frame that implement this scale.
+
+nda20$demo_race_white= (nda20$demo_race_a_p___10 == 1)*1
+nda20$demo_race_black= (nda20$demo_race_a_p___11 == 1)*1
+nda20$demo_race_asian = 0
+nda20$demo_race_asian[nda20$demo_race_a_p___18 == 1 | nda20$demo_race_a_p___19 == 1 |
+			nda20$demo_race_a_p___20 == 1 | nda20$demo_race_a_p___21 == 1 |
+			nda20$demo_race_a_p___22 == 1 | nda20$demo_race_a_p___23 == 1 |
+		    nda20$demo_race_a_p___24==1] = 1
+nda20$demo_race_aian = 0
+nda20$demo_race_aian[nda20$demo_race_a_p___12 == 1 | nda20$demo_race_a_p___13 == 1] = 1
+nda20$demo_race_nhpi = 0
+nda20$demo_race_nhpi[nda20$demo_race_a_p___14 == 1 | nda20$demo_race_a_p___15 == 1 |
+				nda20$demo_race_a_p___16 == 1 | nda20$demo_race_a_p___17 == 1] = 1
+nda20$demo_race_other = 0
+nda20$demo_race_other[nda20$demo_race_a_p___25 == 1] = 1
+nda20$demo_race_mixed = nda20$demo_race_white + nda20$demo_race_black + nda20$demo_race_asian +
+					nda20$demo_race_aian + nda20$demo_race_nhpi + nda20$demo_race_other
+
+nda20$demo_race_mixed[ nda20$demo_race_mixed <= 1] =  0
+nda20$demo_race_mixed[ nda20$demo_race_mixed > 1] =  1
+
+
+# Let's keep the race and ethnicity (Hispanic/Latinx) separate.
+nda20$race.eth.7level = NA
+nda20$race.eth.7level[ nda20$demo_race_white == 1] = 1
+nda20$race.eth.7level[ nda20$demo_race_black == 1] = 2
+nda20$race.eth.7level[ nda20$demo_race_asian == 1] = 3
+nda20$race.eth.7level[ nda20$demo_race_aian == 1]  = 4
+nda20$race.eth.7level[ nda20$demo_race_nhpi == 1]  = 5
+nda20$race.eth.7level[ nda20$demo_race_other == 1] = 6
+nda20$race.eth.7level[ nda20$demo_race_mixed == 1] = 7
+
+# demo_ethn_v2 : do you consider the child Hispanic/Latino/Latina?
+# 1 = Yes; 2 = No.
+nda20$demo_race_hispanic=NA; 
+nda20$demo_race_hispanic[nda20$demo_ethn_v2 == 1] = 1 
+nda20$demo_race_hispanic[nda20$demo_ethn_v2 == 2] = 0
+
+nda20$race.eth.7level <- factor(nda20$race.eth.7level,
+                       levels = c(1,2,3,4,5,6,7),
+                       labels = c("White", "Black", "Asian", "AIAN", "NHPI", "Other", "Mixed") )
+
+
+# The above race.eth value has more categories compared to what has been used recently in ABCD. Here is the reduced definition of race/ethnicity used most frequently.
+nda20$race.ethnicity.5level = nda20$race.eth.7level
+nda20$race.ethnicity.5level[(nda20$race.eth.7level == "AIAN" | nda20$race.eth.7level == "NHPI")] = "Other"
+nda20$race.ethnicity.5level = droplevels(nda20$race.ethnicity.5level)
+
+# It is worthwhile to point out here that the above category for Hispanic is calculated in ABCD differently from the other race categories. In particular any ethnicity selection of hispanic will map the participant into the Hispanic category regardless of the selection of one or more race categories.
+
+```
+
+
+
+
+```{r}
+
+# Save the new data frame again.
+saveRDS(nda20, glue('{output_directory}/nda20.rds'))
+
+# Save as csv file as well.
+write.csv(nda20,glue('{output_directory}/nda20.csv'), row.names = FALSE)
+
+```

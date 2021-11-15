@@ -1,0 +1,53 @@
+---
+title: "calculate_BISBAS_Reward"
+author: "Elizabeth McNeilly"
+date: "7/27/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# The purpose of this script is to calculate the composite variable - Reward Responsiveness - from the BIS/BAS questionnaire (Carver, C. S., & White, T. L., 1994.
+
+#In the original BIS/BAS questionnaire, reward responsiveness is calculated by a sum of items 4, 7, 14, 18, 23. The ABCD delivered version has these items as 8,9,10,11,12. (I have cross-checked them with the original BIS/BAS to confirm.) In DEAP, the composite RR variable states that it has been "modified" and has the RR items as only 8, 9, 11, 12 (not 10 = I get thrilled when good things happen to me.). It is possible that they left this out because the original wording of the statement is "When good things happen to me, it affects me strongly."
+
+#BIS/BAS: BAS Reward Responsiveness (modified): bisbas8_y + bisbas9_y + bisbas11_y + bisbas12_y; Validation: All items must be answered.
+#Pagliaccio, D., Luking, K. R., et al. (2016) Revising the BIS/BAS Scale to study development: Measurement invariance and normative effects of age and sex from childhood through adulthood. Psychol Assess 28(4): 429-442.
+
+#Note: Per the validation reference above, missing values on any of the RR subscale items will render the subscale NA.
+```
+
+
+#REWARD RESPONSIVENESS
+```{r}
+
+library(dplyr)
+library(here)
+library(glue)
+library(here)
+
+#Set your directory with merged data set (nda20) here.
+data_dir = ((dirname(here()))) 
+data_folder <- file.path(data_dir,"ABCD","derivatives")
+output_directory <- data_folder
+
+# Read in data.
+nda20 = readRDS(paste(data_directory,"nda20.rds",sep="/"))
+
+# Change to numeric.
+nda20$bisbas8_y = as.numeric(nda20$bisbas8_y)
+nda20$bisbas9_y = as.numeric(nda20$bisbas9_y)
+nda20$bisbas11_y = as.numeric(nda20$bisbas11_y)
+nda20$bisbas12_y = as.numeric(nda20$bisbas12_y)
+
+
+# Calculate composite.
+nda20 <- nda20 %>%
+  mutate(bisbas_ss_basm_rr = bisbas8_y + bisbas9_y + bisbas11_y + bisbas12_y)
+
+
+saveRDS(nda20, glue('{output_directory}/nda20.rds'))
+
+write.csv(nda20, glue('{output_directory}/nda20.csv'), row.names = FALSE)
+```
