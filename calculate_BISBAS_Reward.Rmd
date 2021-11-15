@@ -27,27 +27,27 @@ library(here)
 library(glue)
 library(here)
 
-#Set your directory with merged data set (nda20) here.
+#Set your directory with merged data set (nda30) here.
 data_dir = ((dirname(here()))) 
 data_folder <- file.path(data_dir,"ABCD","derivatives")
 output_directory <- data_folder
 
 # Read in data.
-nda20 = readRDS(paste(data_directory,"nda20.rds",sep="/"))
+nda30 = readRDS(paste(data_directory,"nda30.rds",sep="/"))
 
 # Change to numeric.
-nda20$bisbas8_y = as.numeric(nda20$bisbas8_y)
-nda20$bisbas9_y = as.numeric(nda20$bisbas9_y)
-nda20$bisbas11_y = as.numeric(nda20$bisbas11_y)
-nda20$bisbas12_y = as.numeric(nda20$bisbas12_y)
+nda30$bisbas8_y = as.numeric(nda30$bisbas8_y)
+nda30$bisbas9_y = as.numeric(nda30$bisbas9_y)
+nda30$bisbas11_y = as.numeric(nda30$bisbas11_y)
+nda30$bisbas12_y = as.numeric(nda30$bisbas12_y)
 
 
 # Calculate composite.
-nda20 <- nda20 %>%
+nda30 <- nda30 %>%
   mutate(bisbas_ss_basm_rr = bisbas8_y + bisbas9_y + bisbas11_y + bisbas12_y)
 
 
-saveRDS(nda20, glue('{output_directory}/nda20.rds'))
+saveRDS(nda30, glue('{output_directory}/nda30.rds'))
 
-write.csv(nda20, glue('{output_directory}/nda20.csv'), row.names = FALSE)
+write.csv(nda30, glue('{output_directory}/nda30.csv'), row.names = FALSE)
 ```

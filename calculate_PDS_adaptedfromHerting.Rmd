@@ -32,7 +32,7 @@ library(dplyr)
 ##Read in 3.0 data.
 data_dir = ((dirname(here())))
 data_folder <- file.path(data_dir,"ABCD","derivatives")  
-file_name <- "nda20.csv" # specify file name here.
+file_name <- "nda30.csv" # specify file name here.
 output_directory <- data_folder
 
 nda30 <- read.table(file.path(data_folder,file_name),header=T, sep=",",as.is=TRUE,strip.white=TRUE,fill=TRUE)

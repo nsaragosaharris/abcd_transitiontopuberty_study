@@ -168,35 +168,35 @@ sph01$eventname <- sph01$visit
 sph01$visit <- NULL
 
 # Start with lt01 because that is the longitudinal tracking file with the basic information.
-nda20 <- merge(lt01, acspsw03,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, bisbas01,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, cbcls01,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, hsss01,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, lpds01,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, mid02,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, mri01,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, ppdms01,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, ypdms01,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, fhxp102,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, midaparc03,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, midaparcp203,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, pdem02,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, sph01,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, imgincl01,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, ant01,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, ssphp01,by=c("src_subject_id","eventname"),all=TRUE)
-nda20 <- merge(nda20, ssphy01,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(lt01, acspsw03,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, bisbas01,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, cbcls01,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, hsss01,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, lpds01,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, mid02,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, mri01,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, ppdms01,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, ypdms01,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, fhxp102,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, midaparc03,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, midaparcp203,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, pdem02,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, sph01,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, imgincl01,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, ant01,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, ssphp01,by=c("src_subject_id","eventname"),all=TRUE)
+nda30 <- merge(nda30, ssphy01,by=c("src_subject_id","eventname"),all=TRUE)
 
-print(glue('There are {ncol(nda20)} columns and {nrow(nda20)} rows in the nda20 dataframe.')) # There are 2775 columns and 54599 rows in the nda20 dataframe.
+print(glue('There are {ncol(nda30)} columns and {nrow(nda30)} rows in the nda30 dataframe.')) # There are 2775 columns and 54599 rows in the nda30 dataframe.
 
 # Figure out how many timepoints for baseline there are.
-nda20$eventname <- as.factor(nda20$eventname)
-levels(nda20$eventname)
+nda30$eventname <- as.factor(nda30$eventname)
+levels(nda30$eventname)
 
-baselinedata <- subset(nda20,eventname =="baseline_year_1_arm_1")
+baselinedata <- subset(nda30,eventname =="baseline_year_1_arm_1")
 uniqueparticipants <- unique(baselinedata$src_subject_id)
 
-# Check that the nda20 dataframe has the correct number of observations.
+# Check that the nda30 dataframe has the correct number of observations.
 print(glue('There are {ncol(baselinedata)} columns and {nrow(baselinedata)} rows for the baseline data.'))
 # There are 2775 columns and 11883 rows for the baseline data.
 print(glue('There are {length(uniqueparticipants)} unique participant IDs in the baseline data.'))
@@ -210,20 +210,20 @@ print(glue('There are {sum(!is.na(baselinedata$cbcl_scr_syn_internal_r))} partic
 
 # Save the data in R's native file format.
 
-saveRDS(nda20, glue('{output_directory}/nda20.rds'))
+saveRDS(nda30, glue('{output_directory}/nda30.rds'))
 
-names.nda20=colnames(nda20)
+names.nda30=colnames(nda30)
 
-save(file="names.nda20.RData",names.nda20)
+save(file="names.nda30.RData",names.nda30)
 
 # Save as a csv file as well.
 
-write.csv(nda20, glue('{output_directory}/nda20.csv'), row.names = FALSE)
+write.csv(nda30, glue('{output_directory}/nda30.csv'), row.names = FALSE)
 ```
 
 # Read data back in.
 ```{r}
-nda20 = readRDS(glue('{output_directory}/nda20.rds'))
+nda30 = readRDS(glue('{output_directory}/nda30.rds'))
 
 ```
 
