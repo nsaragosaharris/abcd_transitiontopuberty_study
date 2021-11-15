@@ -2,7 +2,7 @@ Order in which scripts should be run.
 
 Merging, defining, and calculating data.
 1. merge_text_files.
-2. rename_alias_variables.
+2. rename_alias_variables (references VariableDefinitions.csv).
 3. calculate_BISBAS_Reward.
 4. calculate_MRI_averages.
 5. calculate_PDS_adaptedfromHerting.
