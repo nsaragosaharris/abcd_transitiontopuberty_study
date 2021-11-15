@@ -1,0 +1,54 @@
+Construct,Measure,Confirmatory or Exploratory?,Variable Name,Aliases,ABCD Definition
+Pubertal Timing,PDS (Parent-report),Confirmatory,pds_p_ss_male_category,pubertdev_ss_male_category_p,Pubertal Developmental Scale Parent (in abcd_ssphp01): Male Category pds_p_m_cat_sum (sum_p_m) = pds_bdyhair_y + pds_m4_p + pds_m5_p; 1 - prepuberty sum_p_m = 3; 2 - early puberty sum_p_m >= 4 and <= 5; 3 - mid puberty sum_p_m >= 6 and <= 8; 4 - late puberty sum_p_m >= 9 and <= 11; 5 - post puberty sum_p_m = 12; Validation: All items must be answered
+,,Confirmatory,pds_p_ss_female_category,pubertdev_ss_female_category_p,"Pubertal Developmental Scale Parent (in abcd_ssphp01): Female Category: pds_p_m_cat_sum (sum_p_f) = pds_2_p + pds_f4_p; 1 - prepuberty - sum_p_f = 2 and pds_f5_p = 1, 2 - early puberty - sum_p_f = 3 and pds_f5_p = 1, 3 - mid puberty - sum_p_f >= 3 and pds_f5_p = 1, 4 - late puberty - sum_p_f <= 7 and pds_f5_p = 4, 5 - post puberty - sum_p_f = 8 and pds_f5_p = 4; Validation: All items must be answered"
+,,Confirmatory,pds_f4_p,pubertdev_f4_p,Have you noticed that your child's breasts have begun to grow?
+,,Confirmatory,pds_f5b_p,pubertdev_f5b_p,Has she begun to menstruate? 
+,,Confirmatory,pds_f6_p,pubertdev_f6_p,How old was she when she started to menstruate?
+Testosterone,Saliva Sample,Exploratory,Hormone_scr_ert_mean,,Salimetrics hormone test testosterone (ERT) mean of measures (pg/mL)
+,,Exploratory,hormone_sal_wake_y,biospec_hormone_sal_wake,What time did you wake up today?
+,,Exploratory,hormone_scr_ert_rep1_qns,,Salimetrics hormone test testosterone (ERT) quality not sufficient (repetition 1)
+,,Exploratory,hormone_scr_ert_rep2_qns,,Salimetrics hormone test testosterone (ERT) quality not sufficient (repetition 2)
+,,Exploratory,hormone_sal_caff_y,biospec_hormone_sal_caff,Have you had any caffeine in the last 12 hours?; 1 = Yes; 0 = No
+Depression,CBCL,Confirmatory,Cbcl_scr_syn_internal_t,N/A,Internal CBCL Syndrome Scale (t-score)
+,,Exploratory,Cbcl_scr_syn_anxdep_t,N/A,AnxDep CBCL Syndrome Scale (t-score)
+,,Exploratory,Cbcl_scr_syn_withdep_t,N/A,WithDep CBCL Syndrome Scale (t-score)
+,,Exploratory,cbcl_scr_dsm5_depress_t,N/A,Depress CBCL DSM5 Scale (t-score)
+Reward Anticipation,,,,,
+Neural,MID Task,,,,
+,Anticipation stage,,,,
+,nucleus accumbens,Confirmatory,tfmri_ma_acdn_b_scs_aarh,"tfmri_mid_all_antic.reward.vs.neutral_beta_subcort.aseg_accumbens.area.rh, tfmri_mid_all_anticrewardvsneutral_beta_subcortaseg_accumbensarearh",Beta weight for MID all anticipation of reward versus neutral contrast in ASEG ROI right-accumbens-area
+,,Confirmatory,tfmri_ma_acdn_b_scs_aalh,"tfmri_mid_all_antic.reward.vs.neutral_beta_subcort.aseg_accumbens.area.lh, tfmri_mid_all_anticrewardvsneutral_beta_subcortaseg_accumbensarealh",Beta weight for MID all anticipation of reward versus neutral contrast in ASEG ROI left-accumbens-area
+,caudate,Confirmatory,tfmri_ma_acdn_b_scs_cdrh,"tfmri_mid_all_antic.reward.vs.neutral_beta_subcort.aseg_caudate.rh, tfmri_mid_all_anticrewardvsneutral_beta_subcortaseg_caudaterh",Beta weight for MID all anticipation of reward versus neutral contrast in ASEG ROI right-caudate
+,,Confirmatory,tfmri_ma_acdn_b_scs_cdlh,"tfmri_mid_all_antic.reward.vs.neutral_beta_subcort.aseg_caudate.lh, tfmri_mid_all_anticrewardvsneutral_beta_subcortaseg_caudatelh",Beta weight for MID all anticipation of reward versus neutral contrast in ASEG ROI left-caudate
+,putamen,Confirmatory,tfmri_ma_acdn_b_scs_ptrh,"tfmri_mid_all_antic.reward.vs.neutral_beta_subcort.aseg_putamen.rh, tfmri_mid_all_anticrewardvsneutral_beta_subcortaseg_putamenrh",Beta weight for MID all anticipation of reward versus neutral contrast in ASEG ROI right-putamen
+,,Confirmatory,tfmri_ma_acdn_b_scs_ptlh,"tfmri_mid_all_antic.reward.vs.neutral_beta_subcort.aseg_putamen.lh, tfmri_mid_all_anticrewardvsneutral_beta_subcortaseg_putamenlh",Beta weight for MID all anticipation of reward versus neutral contrast in ASEG ROI left-putamen
+,orbitofrontal cortex (medial),Confirmatory,tfmri_ma_arvn_b_cds_mobofrrh,"tfmri_mid_all_antic.reward.vs.neutral_beta_cort.desikan_medialorbitofrontal.rh, tfmri_mid_all_anticrewardvsneutral_beta_cortdesikan_medialorbitofrontalrh",Beta weight for MID all anticipation of reward versus neutral contrast in APARC ROI rh-medialorbitofrontal
+,,Confirmatory,tfmri_ma_arvn_b_cds_mobofrlh,"tfmri_mid_all_antic.reward.vs.neutral_beta_cort.desikan_medialorbitofrontal.lh, tfmri_mid_all_anticrewardvsneutral_beta_cortdesikan_medialorbitofrontallh",Beta weight for MID all anticipation of reward versus neutral contrast in APARC ROI lh-medialorbitofrontal
+,orbitofrontal cortex (lateral),Confirmatory,tfmri_ma_arvn_b_cds_lobofrrh,"tfmri_mid_all_antic.reward.vs.neutral_beta_cort.desikan_lateralorbitofrontal.rh, tfmri_mid_all_anticrewardvsneutral_beta_cortdesikan_lateralorbitofrontalrh",Beta weight for MID all anticipation of reward versus neutral contrast in APARC ROI rh-lateralorbitofrontal
+,,Confirmatory,tfmri_ma_arvn_b_cds_lobofrlh,"tfmri_mid_all_antic.reward.vs.neutral_beta_cort.desikan_lateralorbitofrontal.lh, tfmri_mid_all_anticrewardvsneutral_beta_cortdesikan_lateralorbitofrontallh",Beta weight for MID all anticipation of reward versus neutral contrast in APARC ROI lh-lateralorbitofrontal
+,Feedback stage,,,,
+,nucleus accumbens,Confirmatory,tfmri_ma_rpvnfb_b_scs_aarh,"tfmri_mid_all_reward.pos.vs.neg.feedback_beta_subcort.aseg_accumbens.area.rh, tfmri_mid_all_rewardposvsnegfeedback_beta_subcortaseg_accumbensarearh",Beta weight for MID all reward positive versus negative feedback contrast in ASEG ROI right-accumbens-area
+,,Confirmatory,tfmri_ma_rpvnfb_b_scs_aalh,"tfmri_mid_all_reward.pos.vs.neg.feedback_beta_subcort.aseg_accumbens.area.lh, tfmri_mid_all_rewardposvsnegfeedback_beta_subcortaseg_accumbensarealh",Beta weight for MID all reward positive versus negative feedback contrast in ASEG ROI left-accumbens-area
+,caudate,Confirmatory,tfmri_ma_rpvnfb_b_scs_cdrh,"tfmri_mid_all_reward.pos.vs.neg.feedback_beta_subcort.aseg_caudate.rh, tfmri_mid_all_rewardposvsnegfeedback_beta_subcortaseg_caudaterh",Beta weight for MID all reward positive versus negative feedback contrast in ASEG ROI right-caudate
+,,Confirmatory,tfmri_ma_rpvnfb_b_scs_cdlh,"tfmri_mid_all_reward.pos.vs.neg.feedback_beta_subcort.aseg_caudate.lh, tfmri_mid_all_rewardposvsnegfeedback_beta_subcortaseg_caudatelh",Beta weight for MID all reward positive versus negative feedback contrast in ASEG ROI left-caudate
+,putamen,Confirmatory,tfmri_ma_rpvnfb_b_scs_ptrh,"tfmri_mid_all_reward.pos.vs.neg.feedback_beta_subcort.aseg_putamen.rh, tfmri_mid_all_rewardposvsnegfeedback_beta_subcortaseg_putamenrh",Beta weight for MID all reward positive versus negative feedback contrast in ASEG ROI right-putamen
+,,Confirmatory,tfmri_ma_rpvnfb_b_scs_ptlh,"tfmri_mid_all_reward.pos.vs.neg.feedback_beta_subcort.aseg_putamen.lh, tfmri_mid_all_rewardposvsnegfeedback_beta_subcortaseg_putamenlh",Beta weight for MID all reward positive versus negative feedback contrast in ASEG ROI left-putamen
+,orbitofrontal cortex (medial),Confirmatory,tfmri_ma_rpvnfb_b_cds_mobofrrh,"tfmri_mid_all_reward.pos.vs.neg.feedback_beta_cort.desikan_medialorbitofrontal.rh, tfmri_mid_all_rewardposvsnegfeedback_beta_cortdesikan_medialorbitofrontalrh",Beta weight for MID all reward positive versus negative feedback contrast in APARC ROI rh-medialorbitofrontal
+,,Confirmatory,tfmri_ma_rpvnfb_b_cds_mobofrlh,"tfmri_mid_all_reward.pos.vs.neg.feedback_beta_cort.desikan_medialorbitofrontal.lh, tfmri_mid_all_rewardposvsnegfeedback_beta_cortdesikan_medialorbitofrontallh",Beta weight for MID all reward positive versus negative feedback contrast in APARC ROI lh-medialorbitofrontal
+,orbitofrontal cortex (lateral),Confirmatory,tfmri_ma_rpvnfb_b_cds_lobofrrh,"tfmri_mid_all_reward.pos.vs.neg.feedback_beta_cort.desikan_lateralorbitofrontal.rh, tfmri_mid_all_rewardposvsnegfeedback_beta_cortdesikan_lateralorbitofrontalrh",Beta weight for MID all reward positive versus negative feedback contrast in APARC ROI rh-lateralorbitofrontal
+,,Confirmatory,tfmri_ma_rpvnfb_b_cds_lobofrlh,"tfmri_mid_all_reward.pos.vs.neg.feedback_beta_cort.desikan_lateralorbitofrontal.lh, tfmri_mid_all_rewardposvsnegfeedback_beta_cortdesikan_lateralorbitofrontallh",Beta weight for MID all reward positive versus negative feedback contrast in APARC ROI lh-lateralorbitofrontal
+,MRI Quality,,,,
+,Include participant?,Confirmatory,imgincl_mid_include,,yes/no to include participant.
+Behavioral,MID Task Reaction Time,Exploratory,tfmri_mid_all_beh_large.reward.pos.feedback_mean.rt,Tfmri_mid_all_beh_lrwpfb_mrt,Average reaction time for large reward trials with positive feedback for run 1 and run 2
+,,Exploratory,tfmri_mid_all_beh_large.reward.pos.feedback_std.rt,Tfmri_mid_all_beh_lrwpfb_stdrt,Standard deviation of average reaction time for large reward trials with positive feedback run 1 and run 2
+,,Exploratory,tfmri_mid_all_beh_small.reward.pos.feedback_mean.rt,Tfmri_mid_all_beh_srwpfb_mrt,Average reaction time for small reward trials with positive feedback for run 1 and run 2
+,,Exploratory,tfmri_mid_all_beh_small.reward.pos.feedback_std.rt,Tfmri_mid_all_beh_srwpfb_stdrt,Standard deviation of average reaction time for small reward trials with positive feedback run 1 and run 2
+,,Exploratory,tfmri_mid_all_beh_neutral.pos.feedback_mean.rt,Tfmri_mid_all_beh_ntpfb_mrt,Average reaction time for neutral trials with positive feedback for run 1 and run 2
+,,Exploratory,tfmri_mid_all_beh_neutral.pos.feedback_std.rt,tfmri_mid_all_beh_ntpfb_stdrt,Standard deviation of average reaction time for neutral trials with positive feedback for run 1 and run 2
+Self-report,BIS/BAS,Exploratory,bisbas_ss_basm_rr,Bis_y_ss_basm_rr,BIS/BAS: BAS Reward Responsiveness (modified): bisbas8_y + bisbas9_y + bisbas11_y + bisbas12_y
+,,Exploratory,bisbas_ss_basm_rr_nm,bis_y_ss_basm_rr_nm,"BIS/BAS, BAS Reward Responsiveness (modified): Number Missing Answers"
+Other,Age,Other,interview_age,age,Age in months at the time of the interview/test/sampling/imaging.
+,Sex,Other,sex,gender,M = Male; F = Female; O=Other; NR = Not reported
+,Participant ID,Other,subjectkey,The NDAR Global Unique Identifier (GUID) for research subject,
+,Maternal Depression,Other,fam_history_6_yes_no,,"Has ANY blood relative of your child ever suffered from depression, that is, have they felt so low for a period of at least two weeks that they hardly ate or slept or couldn't work or do whatever they usually do?"
+,Maternal Depression,Other,fam_history_q6d_depression,,Biological mother
