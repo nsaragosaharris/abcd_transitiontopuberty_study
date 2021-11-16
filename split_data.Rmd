@@ -1,0 +1,126 @@
+---
+title: "Code to split sample into Sample 1 and Sample 2."
+output: html_notebook
+output:
+  html_document: default
+  pdf_document: default
+authors: Lucia Magis Weinberg 
+---
+
+```{r, include=FALSE}
+# Load packages.
+packages <- c("tidyverse",   # data wrangling.
+              "summarytools",  #d ata exploration and simple reporting.
+              "psych",       # correlations and Cronbach alpha for internal consistency.
+              "readr",       # read csv.
+              "tidyr",       # create tidy data, where every column is a variable, every row is an                               observation.
+              "Hmisc",          # correlation.
+              "RColorBrewer",   # choose nice colors for graphs.
+              "psychotools",    # psychometric modeling.
+              "knitr",          # Produce Rmarkdowns from Rnotebooks.
+              "lme4",           # run mixed effects regressions.
+              "lmerTest",       # compare different mixed effects models.
+              "car",            # Companion to Applied Regression.
+              "haven",          # Import foreign statistical formats into R.
+              "jtools",         # plot interactions.
+              "apaTables",      # produce tables, might be redundant.
+              "DataExplorer",   # data exploration.
+              "interactions",   # interactions.
+              "ggstatsplot",    # pretty plots.
+              "here")           # file navigation within a project.
+#library("conflicted") #only run when there are issues with functions. Will illuminate which functions come from different packages.
+#invisible(lapply(packages, install.packages, character.only = TRUE)) # Only run once to install packages.
+invisible(lapply(packages, library, character.only = TRUE))
+```
+
+
+```{r, include=FALSE}
+# Load data.
+## This script assumes that data has already been named (with Natalie's code) and split into two halves.
+## This script is based on the variable names on VariableDefinitions.csv.
+
+data_dir = ((dirname(here()))) 
+
+data_folder <- file.path(data_dir,"ABCD","derivatives")  
+
+file_name <- "nda30.csv" #specify file name here 
+
+output_directory <- data_folder
+
+ABCD_Data <- read.csv(file.path(data_folder,file_name))
+
+```
+
+```{r}
+#Select only baseline.
+library(janitor)
+
+ABCD_Data_baseline <- ABCD_Data %>% filter(eventname=="baseline_year_1_arm_1")
+nrow(ABCD_Data_baseline)
+
+ABCD_Data_baseline <- unique(ABCD_Data_baseline)
+nrow(ABCD_Data_baseline)
+
+ABCD_Data_baseline <- ABCD_Data_baseline %>% filter(sex!="") #remove 6 participants with no gender.
+nrow(ABCD_Data_baseline)
+```
+
+```{r}
+# Baseline comparison between genders.
+library(compareGroups)
+
+reduced.ABCD.table<- ABCD_Data_baseline %>% 
+  select(interview_age,sex,cbcl_scr_syn_internal_t,hormone_scr_ert_mean)
+
+table <- compareGroups(sex ~ ., data = reduced.ABCD.table,na.omit(TRUE))
+pvals <- getResults(table, "p.overall")
+p.adjust(pvals, method = "BH")
+export_table <- createTable(table)
+export_table
+
+export2word(export_table, file = (here("output","fullsample_means_gender.doc")))  
+```
+
+```{r}
+
+library(randomizr)
+set.seed(22773) # To reproduce.
+# Split into two "blocks" (Z = 0 or Z = 1), matched on gender distribution.
+ABCD_Data_baseline$Z <- block_ra(blocks = c(ABCD_Data_baseline$sex))
+table(ABCD_Data_baseline$Z, ABCD_Data_baseline$sex)
+
+reduced.ABCD.table<- ABCD_Data_baseline %>% 
+  select(interview_age,sex,rel_family_id,cbcl_scr_syn_internal_t,hormone_scr_ert_mean,PDS_score,bisbas_ss_basm_rr,race.ethnicity.5level,fam_history_q6d_depression,Z)
+
+table <- compareGroups(Z ~ ., data = reduced.ABCD.table,na.omit(TRUE))
+pvals <- getResults(table, "p.overall")
+p.adjust(pvals, method = "BH")
+export_table <- createTable(table)
+export_table
+
+export2word(export_table, file = (here("output","split_data_exploratory_confirmatory_comparisons_newsplit.doc")))
+```
+
+```{r}
+# List subject IDs.
+subject_id_exploratory<-ABCD_Data_baseline[(ABCD_Data_baseline$Z==0),"src_subject_id"]
+subject_id_confirmatory<-ABCD_Data_baseline[(ABCD_Data_baseline$Z==1),"src_subject_id"]
+
+# Extract full data set based on the baseline IDs,
+ABCD_Data_exploratory <- ABCD_Data[is.element(ABCD_Data$src_subject_id,subject_id_exploratory),]
+ABCD_Data_confirmatory <- ABCD_Data[is.element(ABCD_Data$src_subject_id,subject_id_confirmatory),]
+```
+
+#Save the data.
+```{r}
+save_folder <- file.path(data_dir,"ABCD","derivatives","exploratory")  
+saveRDS(ABCD_Data_exploratory,paste(save_folder,"nda30_exploratory.rds",sep="/"))
+
+write.csv(ABCD_Data_exploratory, paste(save_folder,"nda30_exploratory.csv",sep="/"), row.names = FALSE)
+```
+
+```{r}
+save_folder <- file.path(data_dir,"ABCD","derivatives","confirmatory") 
+saveRDS(ABCD_Data_confirmatory, paste(save_folder,"nda30_confirmatory.rds",sep="/"))
+write.csv(ABCD_Data_confirmatory, paste(save_folder,"nda30_confirmatory.csv",sep="/"), row.names = FALSE)
+```
