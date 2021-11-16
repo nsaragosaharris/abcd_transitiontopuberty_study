@@ -1,0 +1,576 @@
+---
+title: "Plots"
+output: html_notebook
+---
+
+``` {r loadPackages, echo = FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(gamm4)
+library(dplyr)
+library(sjPlot)
+library(here)
+library(jtools)
+library(interactions)
+library(gamm4.test)
+library(ggstatsplot)
+library(glue)
+library(ggeffects)
+library(lme4)
+library(stats)
+library(Hmisc)
+```
+
+```{r LoadData, echo = FALSE}
+
+# We need to create all of the data frames for the exploratory and confirmatory samples.
+# Previously, we had only used one at a time, so they had the same dataframe names (from define_dataframes script), but now we need to use and plot both of them so we need to give them their own variables.
+
+data_dir = ((dirname(here()))) 
+
+# First, let's load the exploratory data and assign unique names to the dataframes we will use for plotting results from the exploratory data.
+phase_folder = "exploratory"  # select the appropriate folder.
+data_folder <- file.path(data_dir,"ABCD","derivatives",phase_folder)
+file_name <- glue("nda30_{phase_folder}.csv")
+fulldata <- read.csv(file.path(data_folder,file_name))
+nrow(fulldata) # 27321.
+
+# Call function to define all of the dataframes.
+script_path <- file.path(data_dir,"abcd_transitiontopuberty_study","code","define_dataframes.R")
+source(script_path)
+
+# Now that the data frames are all created, let's save them with a suffix indicating if it is from exploratory (sample 1) or confirmatory (sample 2) so that we can load both samples at the same time. We only need to do this for the data frames we need to use for our plots.
+fulldata_sample1 <- fulldata
+PDS_correct_females_sample1 <- PDS_correct_females
+PDS_correct_males_sample1 <- PDS_correct_males
+data_no_bisbas_outliers_females_sample1 <- data_no_bisbas_outliers_females
+data_no_bisbas_outliers_males_sample1 <- data_no_bisbas_outliers_males
+data_no_putamen_ant_no_test_outliers_males_sample1 <- data_no_putamen_ant_no_test_outliers_males
+data_no_putamen_ant_outliers_males_sample1 <- data_no_putamen_ant_outliers_males
+
+# For each of the four dataframes, add a column to indicate which sample it is and a column that has their sample and gender in the variable (will be necessary for plotting). Would be better to do this before define_dataframes but it would give an error since we are only creating these columns now, so just doing here instead.
+PDS_correct_females_sample1 <- PDS_correct_females_sample1 %>%
+            mutate(sample = as.factor("sample1"),
+                   sample_sex = as.factor(glue('{sample}_{sex}')))
+
+PDS_correct_males_sample1 <- PDS_correct_males_sample1 %>%
+            mutate(sample = as.factor("sample1"),
+                   sample_sex = as.factor(glue('{sample}_{sex}')))
+
+data_no_bisbas_outliers_females_sample1 <- data_no_bisbas_outliers_females_sample1 %>%
+            mutate(sample = as.factor("sample1"),
+                   sample_sex = as.factor(glue('{sample}_{sex}')))
+
+data_no_bisbas_outliers_males_sample1 <- data_no_bisbas_outliers_males_sample1 %>%
+            mutate(sample = as.factor("sample1"),
+                   sample_sex = as.factor(glue('{sample}_{sex}')))
+
+data_no_putamen_ant_no_test_outliers_males_sample1 <- data_no_putamen_ant_no_test_outliers_males_sample1  %>%
+            mutate(sample = as.factor("sample1"),
+                   sample_sex = as.factor(glue('{sample}_{sex}')))
+
+data_no_putamen_ant_outliers_males_sample1 <- data_no_putamen_ant_outliers_males_sample1 %>%
+            mutate(sample = as.factor("sample1"),
+                   sample_sex = as.factor(glue('{sample}_{sex}')))
+
+
+# Do the same process, but with the confirmatory sample.
+
+phase_folder = "confirmatory" # select the appropriate folder.
+data_folder <- file.path(data_dir,"ABCD","derivatives",phase_folder)
+file_name <- glue("nda30_{phase_folder}.csv")
+fulldata <- read.csv(file.path(data_folder,file_name))
+nrow(fulldata) # 27331.
+script_path <- file.path(data_dir,"abcd_transitiontopuberty_study","code","define_dataframes.R")
+source(script_path)
+
+fulldata_sample2 <- fulldata
+PDS_correct_females_sample2 <- PDS_correct_females
+PDS_correct_males_sample2 <- PDS_correct_males
+data_no_bisbas_outliers_females_sample2 <- data_no_bisbas_outliers_females
+data_no_bisbas_outliers_males_sample2 <- data_no_bisbas_outliers_males
+data_no_accumbens_ant_no_test_outliers_females_sample2 <- data_no_accumbens_ant_no_test_outliers_females
+data_no_RT_MID_outliers_males_sample2 <- data_no_RT_MID_outliers_males
+data_no_caudate_ant_outliers_females_sample2  <- data_no_caudate_ant_outliers_females
+
+PDS_correct_females_sample2 <- PDS_correct_females_sample2 %>%
+            mutate(sample = as.factor("sample2"),
+                   sample_sex = as.factor(glue('{sample}_{sex}')))
+
+PDS_correct_males_sample2 <- PDS_correct_males_sample2 %>%
+            mutate(sample = as.factor("sample2"),
+                   sample_sex = as.factor(glue('{sample}_{sex}')))
+
+data_no_bisbas_outliers_females_sample2 <- data_no_bisbas_outliers_females_sample2 %>%
+            mutate(sample = as.factor("sample2"),
+                   sample_sex = as.factor(glue('{sample}_{sex}')))
+
+data_no_bisbas_outliers_males_sample2 <- data_no_bisbas_outliers_males_sample2 %>%
+            mutate(sample = as.factor("sample2"),
+                   sample_sex = as.factor(glue('{sample}_{sex}')))
+
+data_no_accumbens_ant_no_test_outliers_females_sample2 <- data_no_accumbens_ant_no_test_outliers_females_sample2 %>%
+            mutate(sample = as.factor("sample2"),
+                   sample_sex = as.factor(glue('{sample}_{sex}')))
+
+data_no_caudate_ant_outliers_females_sample2  <- data_no_caudate_ant_outliers_females_sample2  %>%
+            mutate(sample = as.factor("sample2"),
+                   sample_sex = as.factor(glue('{sample}_{sex}')))
+
+PDS_correct_sample1 <- rbind(PDS_correct_females_sample1,PDS_correct_males_sample1)
+PDS_correct_sample2 <- rbind(PDS_correct_females_sample2,PDS_correct_males_sample2)
+PDS_correct <- rbind(PDS_correct_sample1,PDS_correct_sample2)
+
+# Create labels to use for graphs.
+PDS_correct <- PDS_correct %>% mutate(sample_label = case_when(sample == "sample1" ~ "sample 1",
+                                                            sample == "sample2" ~ "sample 2"),
+                                      sex_label = case_when(sex == "F" ~ "female",
+                                                               sex == "M" ~ "male"))
+  
+PDS_correct$sex_label <- as.factor(PDS_correct$sex_label)
+PDS_correct$sample_label <- as.factor(PDS_correct$sample_label)
+
+
+# Reorder the sample_sex columns so that it is consistent across plots.
+PDS_correct$sample_sex <- factor(PDS_correct$sample_sex,levels = c("sample1_F", "sample2_F", "sample1_M", "sample2_M"))
+
+# PDS_correct_sample1.
+mean_bisbas_sample1 <- mean(PDS_correct_sample1$bisbas_ss_basm_rr, na.rm=TRUE)
+sd_bisbas_sample1 <- sd(PDS_correct_sample1$bisbas_ss_basm_rr, na.rm=TRUE)
+PDS_correct_sample1$bisbas_ss_basm_rr_z <- (PDS_correct_sample1$bisbas_ss_basm_rr-mean_bisbas_sample1)/sd_bisbas_sample1
+
+# PDS_correct_sample2.
+mean_bisbas_sample2 <- mean(PDS_correct_sample2$bisbas_ss_basm_rr, na.rm=TRUE)
+sd_bisbas_sample2 <- sd(PDS_correct_sample2$bisbas_ss_basm_rr, na.rm=TRUE)
+PDS_correct_sample2$bisbas_ss_basm_rr_z <- (PDS_correct_sample2$bisbas_ss_basm_rr-mean_bisbas_sample2)/sd_bisbas_sample2
+
+```
+
+```{r settheme, echo = FALSE}
+
+#font_add_google("Montserrat", "Montserrat")
+# font_paths()
+# font_files()  
+# font_add("Avenir", "Avenir.ttc")
+# font_families()
+# showtext_auto()
+
+nsh_theme <- theme(text = element_text(family = "Avenir"),        
+                   title= element_text(size=26, vjust=2, face="bold"),
+                   #plot.title = element_blank(),
+                   plot.subtitle = element_text(color="gray40", size=18, face="bold.italic"),
+                   axis.title.x= element_text(size=24, vjust=-0.3),
+                   axis.title.y= element_text(size=24, vjust=1.5),
+                   axis.text.x= element_text(size=28, colour="black"),
+                   axis.text.y= element_text(size=28, colour="black"),
+                   strip.text = element_text(size=24, face="bold"),
+                   panel.background = element_blank(),
+                   axis.line = element_line(colour = "black"))
+
+# light purple: C7CDFF (females sample 1).
+# dark purple: 9D95CD (females sample 2).
+# light green: B2C6B1 (males sample 1).
+# dark green: 729473 (males sample 2).
+```
+
+```{r figure1, echo = FALSE}
+# Models.
+# Including CBCL outliers.
+
+# Females.
+confirmatory2_females_sample1 <- gamm4(cbcl_scr_syn_internal_r ~ PDS_score +
+                      race.ethnicity.5level +
+                      interview_age +
+                      demo_race_hispanic, 
+                      data = PDS_correct_females_sample1, 
+                      random = ~ (1 | site_id_l/rel_family_id))
+
+
+confirmatory2_females_sample2 <- gamm4(cbcl_scr_syn_internal_r ~ PDS_score +
+                      race.ethnicity.5level +
+                      interview_age +
+                      demo_race_hispanic, 
+                      data = PDS_correct_females_sample2, 
+                      random = ~ (1 | site_id_l/rel_family_id))
+
+# Males.
+confirmatory2_males_sample1 <- gamm4(cbcl_scr_syn_internal_r ~ PDS_score +
+                      race.ethnicity.5level +
+                      interview_age +
+                      demo_race_hispanic, 
+                      data = PDS_correct_males_sample1, 
+                      random = ~ (1 | site_id_l/rel_family_id))
+
+
+confirmatory2_males_sample2 <- gamm4(cbcl_scr_syn_internal_r ~ PDS_score +
+                      race.ethnicity.5level +
+                      interview_age +
+                      demo_race_hispanic, 
+                      data = PDS_correct_males_sample2, 
+                      random = ~ (1 | site_id_l/rel_family_id))
+
+
+# Get model predictions for each sample and then combine so that they can be plotted together.
+
+model_predictions_females_sample1 <- ggpredict(confirmatory2_females_sample1, terms = c("PDS_score"))
+model_predictions_females_sample1$sample <- "females sample 1"
+
+model_predictions_females_sample2 <- ggpredict(confirmatory2_females_sample2, terms = c("PDS_score"))
+model_predictions_females_sample2$sample <- "females sample 2"
+
+model_predictions_males_sample1 <- ggpredict(confirmatory2_males_sample1, terms = c("PDS_score"))
+model_predictions_males_sample1$sample <- "males sample 1"
+
+model_predictions_males_sample2 <- ggpredict(confirmatory2_males_sample2, terms = c("PDS_score"))
+model_predictions_males_sample2$sample <- "males sample 2"
+
+model_predictions <- rbind(model_predictions_females_sample1,model_predictions_females_sample2)
+model_predictions <- rbind(model_predictions,model_predictions_males_sample1)
+model_predictions <- rbind(model_predictions,model_predictions_males_sample2)
+
+# Rename columns so that they are more clear.
+model_predictions <- rename(model_predictions, c(pds_score = x,
+                                                 predicted_cbcl_internalizing = predicted))
+
+
+model_predictions <- model_predictions %>% mutate(gender_group = case_when(sample == "females sample 1" | 
+                                                                          sample == "females sample 2" ~ "female",
+                                                                          sample == "males sample 1" | 
+                                                                          sample == "males sample 2" ~ "male"),
+                                                  sample_group = case_when(sample == "females sample 1" | 
+                                                                          sample == "males sample 1" ~ "sample 1",
+                                                                          sample == "females sample 2" | 
+                                                                          sample == "males sample 2" ~ "sample 2"))
+  
+  
+model_predictions$sample <- as.factor(model_predictions$sample)
+model_predictions$gender_group <- as.factor(model_predictions$gender_group)
+model_predictions$sample_group <- as.factor(model_predictions$sample_group)
+
+figure1 <- ggplot(model_predictions, aes(x = pds_score, y = predicted_cbcl_internalizing, color = sample, fill = sample)) +
+    scale_color_manual(values=c("#C7CDFF", "#9D95CD","#B2C6B1","#729473")) + 
+    scale_fill_manual(values=c("#C7CDFF", "#9D95CD","#B2C6B1","#729473")) + 
+    geom_line(size=4,alpha=0.86) +
+    geom_ribbon(aes(ymin=conf.low, ymax=conf.high), alpha=0.15) +
+    scale_x_continuous(breaks = seq(1, 3.0, by = 0.5), limits = c(1,3)) +
+    scale_y_continuous(breaks = seq(0, 10, by = 2), limits = c(0,10)) +
+    xlab("PDS Score (Continuous)") + 
+    ylab("Model Predicted Internalizing Score") +
+    facet_grid(gender_group ~ sample_group) +  #facet_grid(row_variable ~ column_variable)
+    nsh_theme + 
+   theme(panel.background = element_rect(fill = NA, color = "black"), # Add outline around each panel.
+         panel.spacing = unit(2, "lines"), # Increase space between panels.
+         legend.position = "none") # Remove legend for now.
+figure1
+
+```
+
+```{r figure2, echo = FALSE}
+
+# Females.
+exploratory1B_females_sample1 <- gamm4(bisbas_ss_basm_rr_z ~ PDS_score + interview_age,
+                               random = ~ (1 | site_id_l/rel_family_id),
+                               data = data_no_bisbas_outliers_females_sample1)
+
+exploratory1B_females_sample2 <- gamm4(bisbas_ss_basm_rr_z ~ PDS_score + interview_age,
+                               random = ~ (1 | site_id_l/rel_family_id),
+                               data = data_no_bisbas_outliers_females_sample2)
+
+# Males.
+
+exploratory1B_males_sample1 <- gamm4(bisbas_ss_basm_rr_z ~ PDS_score + interview_age,
+                               random = ~ (1 | site_id_l/rel_family_id),
+                               data = data_no_bisbas_outliers_males_sample1)
+
+exploratory1B_males_sample2 <- gamm4(bisbas_ss_basm_rr_z ~ PDS_score + interview_age,
+                               random = ~ (1 | site_id_l/rel_family_id),
+                               data = data_no_bisbas_outliers_males_sample2)
+
+# Get model predictions for each sample and then combine so that they can be plotted together.
+
+model_predictions_exploratory1B_females_sample1 <- ggpredict(exploratory1B_females_sample1, terms = c("PDS_score"))
+model_predictions_exploratory1B_females_sample1$sample <- "females sample 1"
+
+model_predictions_exploratory1B_females_sample2 <- ggpredict(exploratory1B_females_sample2, terms = c("PDS_score"))
+model_predictions_exploratory1B_females_sample2$sample <- "females sample 2"
+
+model_predictions_exploratory1B_males_sample1 <- ggpredict(exploratory1B_males_sample1, terms = c("PDS_score"))
+model_predictions_exploratory1B_males_sample1$sample <- "males sample 1"
+
+model_predictions_exploratory1B_males_sample2 <- ggpredict(exploratory1B_males_sample2, terms = c("PDS_score"))
+model_predictions_exploratory1B_males_sample2$sample <- "males sample 2"
+
+model_predictions_exploratory1B <- rbind(model_predictions_exploratory1B_females_sample1,model_predictions_exploratory1B_females_sample2)
+model_predictions_exploratory1B <- rbind(model_predictions_exploratory1B,model_predictions_exploratory1B_males_sample1)
+model_predictions_exploratory1B <- rbind(model_predictions_exploratory1B,model_predictions_exploratory1B_males_sample2)
+
+# Rename columns so that they are more clear.
+model_predictions_exploratory1B <- dplyr::rename(model_predictions_exploratory1B, c(pds_score = x,
+                                                 bisbas_ss_basm_rr_z = predicted))
+
+
+model_predictions_exploratory1B <- model_predictions_exploratory1B %>% mutate(gender_group = case_when(sample == "females sample 1" | 
+                                                                          sample == "females sample 2" ~ "female",
+                                                                          sample == "males sample 1" | 
+                                                                          sample == "males sample 2" ~ "male"),
+                                                  sample_group = case_when(sample == "females sample 1" | 
+                                                                          sample == "males sample 1" ~ "sample 1",
+                                                                          sample == "females sample 2" | 
+                                                                          sample == "males sample 2" ~ "sample 2"))
+  
+  
+model_predictions_exploratory1B$sample <- as.factor(model_predictions_exploratory1B$sample)
+model_predictions_exploratory1B$gender_group <- as.factor(model_predictions_exploratory1B$gender_group)
+model_predictions_exploratory1B$sample_group <- as.factor(model_predictions_exploratory1B$sample_group)
+
+
+figure2 <- ggplot(model_predictions_exploratory1B, aes(x = pds_score, y = bisbas_ss_basm_rr_z, color = sample, fill = sample)) + 
+    scale_color_manual(values=c("#C7CDFF", "#9D95CD","#B2C6B1","#729473")) + 
+    scale_fill_manual(values=c("#C7CDFF", "#9D95CD","#B2C6B1","#729473")) + 
+    geom_line(size=4,alpha=0.86) +
+    geom_ribbon(aes(ymin=conf.low, ymax=conf.high), alpha=0.15) +
+    scale_x_continuous(breaks = seq(1, 3.0, by = 0.5), limits = c(1,3)) +
+    scale_y_continuous(breaks = seq(-0.4, 0.4, by = 0.2), limits = c(-0.4,0.4)) +
+    xlab("PDS Score (Continuous)") + 
+    ylab("Model Predicted BIS/BAS-RR Z-Score") +
+    facet_grid(gender_group ~ sample_group) +  #facet_grid(row_variable ~ column_variable)
+    nsh_theme + 
+    theme(panel.background = element_rect(fill = NA, color = "black"), # Add outline around each panel.
+         panel.spacing = unit(2, "lines"), # Increase space between panels.
+         legend.position = "none") # Remove legend for now.
+
+figure2
+```
+
+```{r figure3a, echo = FALSE}
+
+# Sample 2 females.
+
+# Start by using z scored bisbas.
+
+exploratory4c_bisbas_allCBCL_females_bisbasz <- gamm4(cbcl_scr_syn_internal_r ~ 
+                            PDS_score*
+                            bisbas_ss_basm_rr_z+
+                            race.ethnicity.5level +
+                            demo_race_hispanic +
+                            interview_age, 
+                            data = data_no_bisbas_outliers_females_sample2, 
+                            random = ~ (1 | site_id_l/rel_family_id),family=gaussian())
+summary(exploratory4c_bisbas_allCBCL_females_bisbasz$gam)
+
+figure3a <- plot_model(exploratory4c_bisbas_allCBCL_females_bisbasz,
+                type = "pred", # To specify values bisbas, have to use "pred" instead.
+                terms = c("PDS_score","bisbas_ss_basm_rr_z[-2.0,0,2.0]"),
+                colors = "#9D95CD",
+                line.size = 4,
+                show.legend = FALSE) +
+                aes(linetype=group) + # Design the lines based on z score.
+                scale_linetype_manual(values=c("twodash", "solid","dotted"))+
+                scale_y_continuous(limits = c(0, 10), breaks = seq(0,10, by = 2)) +
+                ylab("Model predicted internalizing score") +
+                xlab("PDS Score (continuous)") +
+                labs(title = "PDS x BAS-RR Interaction (Sample 2 females)") +
+                nsh_theme
+
+figure3a
+```
+
+```{r figure3b, echo = FALSE}
+# Sample 1 males.
+exploratory4c_bisbas_allCBCL_males_bisbasz <- gamm4(cbcl_scr_syn_internal_r ~ 
+                            PDS_score*
+                            bisbas_ss_basm_rr_z+
+                            race.ethnicity.5level +
+                            demo_race_hispanic +
+                            interview_age, 
+                            data = data_no_bisbas_outliers_males_sample1, 
+                            random = ~ (1 | site_id_l/rel_family_id),family=gaussian())
+summary(exploratory4c_bisbas_allCBCL_males_bisbasz$gam)
+
+
+figure3b <- plot_model(exploratory4c_bisbas_allCBCL_males_bisbasz,
+                type = "pred", # To specify values, have to use "pred" instead.
+                terms = c("PDS_score","bisbas_ss_basm_rr_z[-2.0,0,2.0]"),
+                colors = "#B2C6B1",
+                line.size = 4,
+                show.legend = FALSE) +
+                aes(linetype=group) + # Design the lines based on z score.
+                scale_linetype_manual(values=c("twodash", "solid","dotted"))+
+                scale_y_continuous(breaks = seq(0,10, by = 2)) +
+                ylab("Model predicted internalizing score") +
+                xlab("PDS Score (continuous)") +
+                labs(title = "PDS x BAS-RR Interaction (Sample 1 males)") +
+                nsh_theme
+
+figure3b
+
+```
+
+```{r figure4, echo = FALSE}
+
+# Sample 2 males.
+data_no_RT_MID_outliers_males_sample2$rt_diff_large_neutral_z <- data_no_RT_MID_outliers_males_sample2$rt_diff_large_neutral_z[,1] # Have to do this way because currently, the z scored column is a matrix and only the first part has valuable information )(dimenions were [1:2318, 1]).
+
+exploratory4c_lg_neutral_RT_males <- gamm4(cbcl_scr_syn_internal_r ~ 
+                            PDS_score*rt_diff_large_neutral_z +
+                            race.ethnicity.5level +
+                            demo_race_hispanic +
+                            interview_age, 
+                            data = data_no_RT_MID_outliers_males_sample2,
+                            random = ~ (1 | site_id_l/rel_family_id),
+                            family=gaussian())
+
+summary(exploratory4c_lg_neutral_RT_males$gam)
+
+figure4 <- plot_model(exploratory4c_lg_neutral_RT_males,
+                type = "pred", # To specify values bisbas, have to use "pred" instead.
+                terms = c("PDS_score","rt_diff_large_neutral_z[-2,0,2]"),
+                colors = "#729473",
+                line.size = 4,
+                show.legend = FALSE) +
+                aes(linetype=group) + # Design the lines based on z score.
+                scale_linetype_manual(values=c("twodash", "solid","dotted"))+
+                scale_y_continuous(limits = c(0, 16), breaks = seq(0,16, by = 2)) + # Had to extend limits for this one for the confidence interval.
+                ylab("Model predicted internalizing score") +
+                xlab("PDS Score") +
+                labs(title = "PDS x MID reaction time interaction (sample 2 males)", colour = "Reaction time difference (large vs. neutral) z-score") +
+                nsh_theme
+
+figure4
+
+```
+
+```{r figure5a, echo = FALSE}
+# Sample 2 females.
+dataformodel <- data_no_caudate_ant_outliers_females_sample2
+
+confirmatory4_caudate_ant_females <- gamm4(cbcl_scr_syn_internal_r ~ 
+                            PDS_score*caudate_rvsn_ant_z+
+                            race.ethnicity.5level +
+                            demo_race_hispanic +
+                            interview_age,
+                            data=dataformodel, random = ~ (1 | site_id_l/rel_family_id),family=gaussian())
+
+summary(confirmatory4_caudate_ant_females$gam)
+
+figure5a <- plot_model(confirmatory4_caudate_ant_females,
+                type = "pred",
+                terms = c("PDS_score","caudate_rvsn_ant_z[-2,0,2]"),
+                colors = "#9D95CD",
+                line.size = 4,
+                show.legend = FALSE) +
+                aes(linetype=group) + # Design the lines based on z score.
+                scale_linetype_manual(values=c("twodash", "solid","dotted"))+
+                scale_y_continuous(limits = c(0, 12), breaks = seq(0,10, by = 2)) + # Extended limit for confidence intervals.
+                ylab("Model predicted internalizing score") +
+                xlab("PDS Score") +
+                labs(title = "PDS x caudate anticipation interaction", subtitle = "Sample 2 females", colour = "Caudate anticipation z-score") +
+                nsh_theme
+
+figure5a
+
+```
+
+```{r figure5b, echo = FALSE}
+# Sample 1 males.
+dataformodel <- data_no_putamen_ant_outliers_males_sample1
+
+confirmatory4_putamen_ant_males <- gamm4(cbcl_scr_syn_internal_r ~ 
+                            PDS_score*
+                            putamen_rvsn_ant_z+
+                            race.ethnicity.5level +
+                            demo_race_hispanic +
+                            interview_age,
+                            data=dataformodel, random = ~ (1 | site_id_l/rel_family_id),family=gaussian())
+
+summary(confirmatory4_putamen_ant_males$gam)
+
+figure5b <- plot_model(confirmatory4_putamen_ant_males,
+                type = "pred",
+                terms = c("PDS_score","putamen_rvsn_ant_z[-2.0,0,2.0]"),
+                colors = "#B2C6B1",
+                line.size = 4,
+                show.legend = FALSE) +
+                aes(linetype=group) + # Design the lines based on z score.
+                scale_linetype_manual(values=c("twodash", "solid","dotted")) +
+                scale_y_continuous(limits = c(-3, 12), breaks = seq(0,10, by = 2)) + # Had to change limits for confidence intervals.
+                ylab("Model predicted internalizing score") +
+                xlab("PDS Score") +
+                labs(title = "PDS x putamen anticipation interaction",
+                     subtitle = "Sample 1 males",
+                     colour = "Putamen reward vs. neutral anticipation z-score") +
+                nsh_theme
+
+figure5b
+```
+
+```{r figure6a, echo = FALSE}
+#Sample 2 females.
+dataformodel <- data_no_accumbens_ant_no_test_outliers_females_sample2
+
+confirmatory4Ea_accumbens_test_females <- gamm4(cbcl_scr_syn_internal_r ~ 
+                            PDS_score+
+                            hormone_scr_ert_mean*  
+                            accumbens_rvsn_ant_z+
+                            race.ethnicity.5level +
+                            demo_race_hispanic +
+                            interview_age,
+                            data=dataformodel, random = ~ (1 | site_id_l/rel_family_id),family=gaussian())
+
+summary(confirmatory4Ea_accumbens_test_females$gam)
+
+figure6a <- plot_model(confirmatory4Ea_accumbens_test_females,
+                type = "pred", # To specify values bisbas, have to use "pred" instead.
+                terms = c("hormone_scr_ert_mean","accumbens_rvsn_ant_z[-2,0,2]"),
+                colors = "#9D95CD",
+                line.size = 4,
+                show.legend = FALSE) +
+                aes(linetype=group) + # Design the lines based on z score.
+                scale_linetype_manual(values=c("twodash", "solid","dotted"))+
+                scale_y_continuous(limits = c(-3, 12), breaks = seq(0,10, by = 2)) + # Had to change limits for confidence intervals.
+                ylab("Model predicted internalizing score") +
+                xlab("Testosterone (pg/mL)") +
+                labs(title = "Testosterone x Accumbens anticipation interaction",
+                subtitle = "Sample 2 Females", colour = "Accumbens anticipation z-score") +
+                nsh_theme
+
+figure6a
+```
+
+```{r figure6b, echo = FALSE}
+# Sample 1, confirmatory4Ea_putamen_test_males.
+# light green: B2C6B1 (males sample 1).
+
+dataformodel <- data_no_putamen_ant_no_test_outliers_males_sample1 # Specify data subset here.
+
+confirmatory4Ea_putamen_test_males <- gamm4(cbcl_scr_syn_internal_r ~ 
+                            PDS_score+
+                            hormone_scr_ert_mean*  
+                            putamen_rvsn_ant_z+
+                            race.ethnicity.5level +
+                            demo_race_hispanic +
+                            interview_age,
+                            data=dataformodel, random = ~ (1 | site_id_l/rel_family_id),family=gaussian())
+
+summary(confirmatory4Ea_putamen_test_males$gam)
+
+
+figure6b <- plot_model(confirmatory4Ea_putamen_test_males,
+                type = "pred",
+                terms = c("hormone_scr_ert_mean","putamen_rvsn_ant_z[-2,0,2]"),
+                colors = "#B2C6B1",
+                line.size = 4,
+                show.legend = FALSE) +
+                #ylim(0,10)+ # Confidence intervals look weird because it gets to the x axis (predicting CBCL below zero).
+                scale_x_continuous(limits = c(0,80),breaks=seq(0,80,20)) +
+                scale_y_continuous(limits = c(-2,10),breaks=seq(0,10,2)) +
+                aes(linetype=group) + # Design the lines based on z score.
+                scale_linetype_manual(values=c("twodash", "solid","dotted")) +
+                ylab("Model predicted internalizing score") +
+                xlab("Testosterone (pg/mL)") +
+                labs(title = "Testosterone x Putamen anticipation interaction",
+                subtitle = "Sample 1 males", colour = "Putamen anticipation z-score") +
+                nsh_theme
+
+figure6b
+
+```
