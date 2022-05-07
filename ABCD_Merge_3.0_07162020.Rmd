@@ -1,0 +1,302 @@
+---
+title: "ABCD_Merge_3.0_07162020"
+author: "Elizabeth McNeilly"
+date: "7/16/2020"
+output: html_document
+---
+
+#NOTE: 
+- Change working directory to the location where the raw data is saved. 
+#SETUP
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(plyr)
+library(readr)
+library(glue)
+
+getwd()
+# Set your data directory here.
+data_directory <- "~/Desktop/Desktop_MacBookPro/Desktop_Folders/UO/ABCD_Workshop/Data_Analysis_3.0/newdownload_20210329"
+# data_directory <-  '/Users/nataliesaragosa-harris/Desktop/ABCD/individualdatafiles'
+output_directory <- "~/Desktop/Desktop_MacBookPro/Desktop_Folders/UO/ABCD_Workshop/Data_Analysis_3.0/Output"
+# output_directory <- '/Users/nataliesaragosa-harris/Desktop/ABCD/ABCD/derivatives'
+
+#Convert .txt files to .csv format. This assumes all of the text files you want to use (and no other random files) are in the current directory.
+setwd(data_directory)
+filelist = list.files(pattern = ".txt")
+length(filelist) # Should be eighteen (?) files.
+for (i in 1:length(filelist)){
+    input<-filelist[i]
+    output <- paste0(gsub("\\.txt$", "", input), ".csv")
+    print(glue('Processing the file: {input}.'))
+    data = read.delim(input, header = TRUE)
+    if('eventname' %in% colnames(data)){ 
+        baselinedata = subset(data,eventname == "baseline_year_1_arm_1")
+        print(glue('Rows for baseline: {nrow(baselinedata)}.'))
+    }
+    else{
+      print(glue('No eventname column. Total rows, without filtering by this variable: {nrow(data)}.'))
+    }
+    write.table(data, file=output, sep=",", col.names=TRUE, row.names=FALSE)
+}
+
+```
+
+
+
+#Separate Data Frames
+```{r}
+
+#Read in data in separate data frames.
+setwd(data_directory)
+csv_filelist = list.files(pattern = ".csv")
+ 
+# This loop should work instead of the code below (commented out), but if not then use that instead.
+# The function read_csv has a lot of output messages but it's the one that worked for all of them.
+for (i in 1:length(csv_filelist)){
+     filename <- csv_filelist[i]
+     dataframe_name <- sub("abcd_", "", filename) # There's a prettier way to do this, but not all of them have "abcd" in the title, so will just do this for now.
+     dataframe_name <- sub(".csv", "", dataframe_name)
+     temporary_df <- as.data.frame(read_csv(glue('{data_directory}/{filename}'),col_types = cols())) # Create a temporary dataframe and then rename it based on the name of the file.
+     assign(dataframe_name, temporary_df)
+     print(glue('Created dataframe {i}/{length(csv_filelist)}: {dataframe_name}.'))
+ }
+ 
+# 
+#  acspsw03 <- read.csv(glue('{data_directory}/acspsw03.csv'))
+# 
+#  bisbas01 <- read.csv(glue('{data_directory}/abcd_bisbas01.csv'))
+# 
+#  cbcls01 <- read.csv(glue('{data_directory}/abcd_cbcls01.csv'))
+# 
+#  hsss01 <- read.csv(glue('{data_directory}/abcd_hsss01.csv'))
+# 
+#  lpds01 <- read_csv(glue('{data_directory}/abcd_lpds01.csv'))
+# 
+#  lt01 <- read.csv(glue('{data_directory}/abcd_lt01.csv'))
+# 
+#  mid02 <- read.csv(glue('{data_directory}/abcd_mid02.csv'))
+# 
+#  mri01 <- read.csv(glue('{data_directory}/abcd_mri01.csv'))
+#
+#  mriqcrp302 <- read.csv(glue('{data_directory}/mriqcrp302.csv'))
+# 
+#  ppdms01 <- read.csv(glue('{data_directory}/abcd_ppdms01.csv'))
+# 
+#  ypdms01 <- read.csv(glue('{data_directory}/abcd_ypdms01.csv'))
+# 
+#  fhxp102 <- read.csv(glue('{data_directory}/fhxp102.csv'))
+# 
+#  midaparc03 <- read.csv(glue('{data_directory}/midaparc03.csv'))
+# 
+#  midaparcp203 <- read.csv(glue('{data_directory}/midaparcp203.csv'))
+# 
+#  pdem02 <- read_csv(glue('{data_directory}/pdem02.csv'))
+# 
+#  sph01 <- read_csv(glue('{data_directory}/sph01.csv'))
+#  
+#  imgincl01 <- read_csv(glue('{data_directory}/abcd_imgincl01.csv'))
+# 
+#  ant01 <- read.csv(glue('{data_directory}/abcd_ant01.csv'))
+#  ssphp01 <- read.csv(glue('{data_directory}/ssphp01.csv'))
+#  ssphy01 <- read.csv(glue('{data_directory}/ssphp01.csv'))
+ 
+```
+
+
+#Cleaning
+```{r}
+
+# The first row in each spreadsheet is the element description. Let's remove those for our data tables. This information is already present in the [ABCD Data Dictionaries](https://ndar.nih.gov/data_dictionary.html?source=ABCD%2BRelease%2B2.0&submission=ALL).
+
+# Note: Tried using a list of dataframes for this section but it was too complicated so we are reading them in one at a time instead.
+
+#dataframe_list = list(acspsw03, bisbas01, cbcls01, hsss01, lpds01, lt01, mid02, mri01, ppdms01, ypdms01, fhxp102, midaparc03, midaparcp203, pdem02, sph01,imgincl01, ant01, ssphp01, ssphy01)
+
+# First, make sure they are all dataframes.
+#lapply(dataframe_list, function(x) { print(class(x)) })
+
+#lapply(dataframe_list, function(x) { x <- x[-1,]})
+
+acspsw03 = acspsw03[-1,]
+bisbas01 = bisbas01[-1,]
+cbcls01 = cbcls01[-1,]
+hsss01 = hsss01[-1,]
+lpds01 = lpds01[-1,]
+lt01 = lt01[-1,]
+mid02 = mid02[-1,]
+mri01 = mri01[-1,]
+ppdms01 = ppdms01[-1,]
+ypdms01 = ypdms01[-1,]
+fhxp102 = fhxp102[-1,]
+midaparc03 = midaparc03[-1,]
+midaparcp203 = midaparcp203[-1,]
+pdem02 = pdem02[-1,]
+sph01 = sph01[-1,]
+imgincl01 = imgincl01[-1,]
+ant01 = ant01[-1,]
+ssphp01 = ssphp01[-1,]
+ssphy01 = ssphy01[-1,]
+
+imgincl01 <- subset(imgincl01,!is.na(visit)) # For whatever reason, each participant has two rows, one with a date and one without a date in the 'visit' column, so for now only use the rows that have a date (otherwise will have two rows for each participant).
+# length(unique(imgincl01$src_subject_id)) # Has 11809 unique participants (11787 if looking only at baseline). I think there are 11,869 at baseline, so sixty participants are not included in this file.
+
+imgincl01 <- subset(imgincl01,eventname=="baseline_year_1_arm_1")
+# Five participants still have duplicate rows.
+duplicates <- imgincl01[duplicated(imgincl01$src_subject_id),]
+# View(duplicates)
+duplicates <- duplicates$src_subject_id
+duplicates_df <- subset(imgincl01, src_subject_id %in% duplicates)
+# For these, the rows are identical, so can just keep one of them.
+imgincl01 <- imgincl01[!duplicated(imgincl01$src_subject_id),]
+
+# length(unique(imgincl01$src_subject_id)) # Now, there are 11,787 participants with information in this dataframe.
+
+```
+
+
+```{r}
+# Remove duplicated columns across data frames. Keep these columns in lt01, the longitudinal tracking data file.
+
+duplicate_columns <- c("collection_id", "collection_title", "subjectkey", "interview_age","interview_date","sex","dataset_id")
+
+acspsw03 = acspsw03[,!(names(acspsw03) %in% duplicate_columns)]
+
+bisbas01 = bisbas01[,!(names(bisbas01) %in% duplicate_columns)]
+
+cbcls01 = cbcls01[,!(names(cbcls01) %in% duplicate_columns)]
+
+hsss01 = hsss01[,!(names(hsss01) %in% duplicate_columns)]
+
+lpds01 = lpds01[,!(names(lpds01) %in% duplicate_columns)]
+
+mid02 = mid02[,!(names(mid02) %in% duplicate_columns)]
+
+mri01 = mri01[,!(names(mri01) %in% duplicate_columns)]
+
+ppdms01 = ppdms01[,!(names(ppdms01) %in% duplicate_columns)]
+
+ypdms01 = ypdms01[,!(names(ypdms01) %in% duplicate_columns)]
+
+fhxp102 = fhxp102[,!(names(fhxp102) %in% duplicate_columns)]
+
+midaparc03 = midaparc03[,!(names(midaparc03) %in% duplicate_columns)]
+
+midaparcp203 = midaparcp203[,!(names(midaparcp203) %in% duplicate_columns)]
+
+pdem02 = pdem02[,!(names(pdem02) %in% duplicate_columns)]
+
+sph01 = sph01[,!(names(sph01) %in% duplicate_columns)]
+
+imgincl01 = imgincl01[,!(names(imgincl01) %in% duplicate_columns)]
+
+ant01 = ant01[,!(names(ant01) %in% duplicate_columns)]
+
+ssphp01 = ssphp01[,!(names(ssphp01) %in% duplicate_columns)]
+
+ssphy01 = ssphy01[,!(names(ssphy01) %in% duplicate_columns)]
+
+```
+
+
+# Merge dataframes.
+```{r}
+# Merge the individual tables into a single spreadsheet.
+
+# sph01 does not have event name.
+# In sph01, 'eventname' is called 'visit', so need to change that first.
+sph01$eventname <- sph01$visit
+sph01$visit <- NULL
+
+# Note: We originally were using the loop provided by the ABCD workshop to do this, but it was difficult to assess the error messages, so we are merging each dataframe at a time instead.
+
+#t2 = list(acspsw03, bisbas01, cbcls01, hsss01, lpds01, lt01, mid02, mri01, ppdms01, ypdms01, fhxp102, midaparc03, midaparcp203, pdem02, sph01,imgincl01, ant01, ssphp01, ssphy01)
+#nda20 <- Reduce(function(x,y) merge(x,y, all=TRUE,by=c("src_subject_id","eventname")),t2,accumulate=FALSE)
+
+# Start with lt01 because that is the longitudinal tracking file with the basic information.
+nda20 <- merge(lt01, acspsw03,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, bisbas01,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, cbcls01,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, hsss01,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, lpds01,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, mid02,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, mri01,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, ppdms01,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, ypdms01,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, fhxp102,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, midaparc03,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, midaparcp203,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, pdem02,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, sph01,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, imgincl01,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, ant01,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, ssphp01,by=c("src_subject_id","eventname"),all=TRUE)
+nda20 <- merge(nda20, ssphy01,by=c("src_subject_id","eventname"),all=TRUE)
+
+print(glue('There are {ncol(nda20)} columns and {nrow(nda20)} rows in the nda20 dataframe.')) # There are 2775 columns and 54599 rows in the nda20 dataframe.
+
+# 
+# while (length(t2) > 1 ) {
+#   print("iteration")
+#   #print(deparse(substitute(bm)))
+#   access= seq(1,length(t2)-1,2)
+#   for (i in access) {
+#     bm = dim(t2[[i]])
+#     #print(deparse(substitute(bm)))
+#     by.vars=c("src_subject_id","eventname")
+#     t2[[i]] = merge(t2[[i]], t2[[i+1]], by=by.vars, all=TRUE)
+# 
+#     print(paste("rows before: ", bm[1], dim(t2[[i+1]])[1], " rows after: ",dim(t2[[i]])[1], "indices: ",i,i+1," columns: ",bm[2],"+",dim(t2[[i+1]])[2], " = ",dim(t2[[i]])[2]))
+#   }
+#   # for odd number of instruments add the last spreadsheet back to the list
+#   if (length(t2) %% 2 != 0) access = append(access,length(t2))
+#   # reduce the list
+#   t2 = t2[access]
+# }
+# nda20 = t2[[1]]
+# nda20=nda20[,-which(grepl("dataset_id",colnames(nda20)))]
+
+# Figure out how many tiempoints for baseline there are.
+nda20$eventname <- as.factor(nda20$eventname)
+levels(nda20$eventname)
+
+baselinedata <- subset(nda20,eventname =="baseline_year_1_arm_1")
+uniqueparticipants <- unique(baselinedata$src_subject_id)
+#Per the original merge script: The nda data frame should contain 27,368 rows (baseline: 11,875; 6 month: 8,623; 1 year: 4,951; and 18 month: 1,919).
+# nrow(nda20)
+# nrow(baseline)
+
+
+# Check that the nda20 dataframe has the correct number of observations.
+print(glue('There are {ncol(baselinedata)} columns and {nrow(baselinedata)} rows for the baseline data.'))
+# There are 2775 columns and 11883 rows for the baseline data.
+print(glue('There are {length(uniqueparticipants)} unique participant IDs in the baseline data.'))
+# There are 11878 unique participant IDs in the baseline data. This suggests that there are five participants with two rows?
+
+# Check for PDS and CBCL variables.
+print(glue('There are {sum(!is.na(baselinedata$pds_1_p))} participants with a pds_1_p score in the baseline data.'))
+# There are 11876 participants with a pds_1_p score in the baseline data.
+print(glue('There are {sum(!is.na(baselinedata$cbcl_scr_syn_internal_r))} participants with a CBCL internalizing score in the baseline data.'))
+# There are 11875 participants with a CBCL internalizing score in the baseline data.
+
+# Save the data in R's native file format.
+
+saveRDS(nda20, glue('{output_directory}/nda20.rds'))
+
+names.nda20=colnames(nda20)
+
+save(file="names.nda20.RData",names.nda20)
+
+# Save as a csv file as well.
+
+write.csv(nda20, glue('{output_directory}/nda20.csv'), row.names = FALSE)
+```
+
+# Read data back in.
+```{r}
+nda20 = readRDS(glue('{output_directory}/nda20.rds'))
+
+```
+
+
