@@ -131,15 +131,13 @@ data <- fulldata[,c("src_subject_id",
 # Note: pds_ss_category = pds_p_ss_category. Rename here.
 data <- rename(data, pds_p_ss_category = pds_ss_category)
 
-data[c("src_subject_id","rel_family_id","eventname",
-       "sex","demo_race_hispanic","site_id_l",
-       "mri_info_deviceserialnumber","race.ethnicity.5level","race.eth.7level",
-       "high.educ","household.income","married.or.livingtogether",
-       "pds_p_ss_category","tfmri_mid_beh_performflag","imgincl_mid_include")] <- lapply(data[c("src_subject_id","rel_family_id","eventname",
-                                                                                                "sex","demo_race_hispanic","site_id_l",
-                                                                                                "mri_info_deviceserialnumber","race.ethnicity.5level","race.eth.7level",
-                                                                                                "high.educ","household.income","married.or.livingtogether",
-                                                                                              "pds_p_ss_category","tfmri_mid_beh_performflag","imgincl_mid_include")], as.factor)
+factor_columns <- c("src_subject_id","rel_family_id","eventname",
+                    "sex","demo_race_hispanic","site_id_l",
+                    "mri_info_deviceserialnumber","race.ethnicity.5level","race.eth.7level",
+                    "high.educ","household.income","married.or.livingtogether",
+                    "pds_p_ss_category","tfmri_mid_beh_performflag","imgincl_mid_include")
+
+data[c(factor_columns)] <- lapply(data[c(factor_columns)],as.factor)
 
 # Releveling so that "Pre" is the reference group for PDS category.
 data$pds_p_ss_category <- relevel(data$pds_p_ss_category, ref="Pre")
@@ -148,18 +146,28 @@ data$pds_p_ss_category <- relevel(data$pds_p_ss_category, ref="Pre")
 #data$race.ethnicity.5level[(data$race.eth.7level == "AIAN" | data$race.eth.7level == "NHPI")] = "Other"
 #data$race.ethnicity.5level = droplevels(data$race.ethnicity.5level)
 
-# Exclude two participants who have multiple rows for baseline.
-data <- subset(data, src_subject_id != "NDAR_INV2ZA2LC3N" & src_subject_id != "NDAR_INVJ9GNXGK5")
-nrow(data) # 27298.
+# Because of duplicate rows, these people were unintentionally added to both samples.
+# Make sure they are only in one sample here.
+if(phase_folder == "exploratory" ){
+  data <- subset(data, src_subject_id != "NDAR_INV2ZA2LC3N")
+}else if (phase_folder == "confirmatory"){
+  data <- subset(data, src_subject_id != "NDAR_INVJ9GNXGK5")
+}
+
+# Also need to exclude duplicated rows for a couple people, but will remove duplicate rows instead of removing them manually (and will keep one row for each of them rather than remove all their rows).
 
 # Use only data from baseline.
 data <- subset(data,eventname == "baseline_year_1_arm_1")
-nrow(data) # 5945 (exploratory).
+nrow(data) # 5953 (exploratory); 5960 (confirmatory).
+
+# Get rid of duplicated rows.
+data <- data[!duplicated(data$src_subject_id),]
+nrow(data) # 5939 (exploratory and confirmatory).
 
 data$PDS_score_z<- scale(data$PDS_score)
 data$cbcl_scr_syn_internal_r_z <- scale(data$cbcl_scr_syn_internal_r)
 
-# Lines 148 to 223 filter invalid testosterone values (Adapted from Herting script).
+# Filter invalid testosterone values (Adapted from Herting script).
 
 # Exploratory.
 # 5 Female with misclassified Male tubes. 6 Male with misclassified Female tubes. 49 either had issues at saliva collection or had NA gender values.
@@ -554,7 +562,7 @@ data_no_putamen_ant_no_test_outliers_males <- subset(MID_imaging_correct_males, 
 nrow(data_no_putamen_ant_no_test_outliers_males) #1912
 
 #No reward and no testosterone outliers
-#### Separate reward regions for feedback pos vs neg. #### 
+#### Separate reward regions for feedback positive vs. negative. #### 
 # No accumbens outliers.
 data_no_accumbens_feed_no_test_outliers <- subset(MID_imaging_correct, accumbens_posvsneg_feedback_z > -3 & accumbens_posvsneg_feedback_z < 3 & hormone_scr_ert_mean_z > -3 & hormone_scr_ert_mean_z < 3) 
 nrow(data_no_accumbens_feed_no_test_outliers) #3827
